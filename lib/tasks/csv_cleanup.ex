@@ -23,7 +23,7 @@ defmodule Mix.Tasks.CsvCleanup do
   end
 
   defp remove_tmp_dir() do
-    case File.dir?(@tmp_dir |> IO.inspect()) |> IO.inspect() do
+    case File.dir?(@tmp_dir) do
       true -> File.rm_rf(@tmp_dir)
       false -> {:ok, nil}
     end
