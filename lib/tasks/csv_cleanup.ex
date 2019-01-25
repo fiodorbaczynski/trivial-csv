@@ -13,7 +13,7 @@ defmodule Mix.Tasks.CsvCleanup do
 
   require Logger
 
-  @tmp_dir "#{File.cwd!()}/test/support/tmp"
+  @tmp_dir "./test/support/tmp"
 
   def run(_) do
     case remove_tmp_dir() do
@@ -23,7 +23,7 @@ defmodule Mix.Tasks.CsvCleanup do
   end
 
   defp remove_tmp_dir() do
-    case File.dir?(@tmp_dir) do
+    case File.dir?(@tmp_dir |> IO.inspect()) |> IO.inspect() do
       true -> File.rm_rf(@tmp_dir)
       false -> {:ok, nil}
     end

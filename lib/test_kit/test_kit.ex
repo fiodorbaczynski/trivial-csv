@@ -1,6 +1,6 @@
 defmodule TrivialCsv.TestKit do
   defmacro __using__(opts) do
-    tmp_path = "#{File.cwd!()}/test/support/tmp"
+    tmp_path = "./test/support/tmp"
     schema = Keyword.get(opts, :schema, [])
 
     make_tmp_dir(tmp_path)
