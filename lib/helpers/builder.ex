@@ -10,6 +10,8 @@ defmodule TrivialCsv.Builder do
     end
   end
 
+  def build_row({:error, _} = error, _, _), do: error
+
   def build_row({:error, _, _} = error, _, _), do: error
 
   defp build_models(_, _, _, acc \\ %{})
