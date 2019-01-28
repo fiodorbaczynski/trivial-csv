@@ -5,12 +5,27 @@ defmodule TrivialCsv do
   defmacro __using__(opts \\ []) do
     schema = Keyword.get(opts, :schema, [])
     static_data = Keyword.get(opts, :static_data, [])
+    separator = Keyword.get(opts, :separator, ?,)
     {%{name: schema_name}, _} = Code.eval_quoted(schema)
 
     parse_fun_name = String.to_atom("do_parse_" <> schema_name)
 
     quote do
       import TrivialCsv
+
+      def stream_file(file_path) do
+        file_stream =
+          file_path
+          |> File.stream!()
+          |> CSV.decode(separator: unquote(separator))
+
+        headers = file_stream |> Stream.take(1) |> Enum.at(0)
+        rows = Stream.drop(file_stream, 1)
+
+        {:ok, headers, rows}
+      rescue
+        _ -> {:error, "File does not exist or is corrupted"}
+      end
 
       def unquote(parse_fun_name)(file_path) do
         with {:ok, headers, rows} <- stream_file(file_path),
@@ -33,19 +48,5 @@ defmodule TrivialCsv do
 
   def parse_static_data(getter_functions) do
     Enum.reduce(getter_functions, %{}, fn {key, fun}, acc -> Map.put(acc, key, fun.()) end)
-  end
-
-  def stream_file(file_path) do
-    file_stream =
-      file_path
-      |> File.stream!()
-      |> CSV.decode()
-
-    headers = file_stream |> Stream.take(1) |> Enum.at(0)
-    rows = Stream.drop(file_stream, 1)
-
-    {:ok, headers, rows}
-  rescue
-    _ -> {:error, "File does not exist or is corrupted"}
   end
 end

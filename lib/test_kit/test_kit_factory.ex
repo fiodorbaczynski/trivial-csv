@@ -1,5 +1,6 @@
 defmodule TrivialCsv.TestKit.Factory do
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
+    separator = Keyword.get(opts, :separator, ?,)
     tmp_path = "#{File.cwd!()}/test/support/tmp"
 
     quote do
@@ -20,7 +21,17 @@ defmodule TrivialCsv.TestKit.Factory do
         end)
       end
 
-      defmacro __using__(_opts, do: block) do
+      def generate_csv(file_path, column_names, rows) do
+        file = File.open!(file_path, [:write, :utf8])
+
+        [column_names | rows]
+        |> CSV.encode(separator: unquote(separator))
+        |> Enum.each(&IO.write(file, &1))
+
+        file_path
+      end
+
+      defmacro __using__(opts, do: block) do
         quote do
           unquote(block).()
         end
@@ -96,15 +107,5 @@ defmodule TrivialCsv.TestKit.Factory do
       {name, _, _} -> name
       {name, _} -> name
     end)
-  end
-
-  def generate_csv(file_path, column_names, rows) do
-    file = File.open!(file_path, [:write, :utf8])
-
-    [column_names | rows]
-    |> CSV.encode()
-    |> Enum.each(&IO.write(file, &1))
-
-    file_path
   end
 end
