@@ -104,5 +104,5 @@ defmodule TrivialCsv.Matcher do
     end
   end
 
-  defp nested_put(map, [], value), do: value
+  defp nested_put(_, [], value), do: value
 end
