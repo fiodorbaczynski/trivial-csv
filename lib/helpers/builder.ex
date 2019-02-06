@@ -24,7 +24,8 @@ defmodule TrivialCsv.Builder do
        ) do
     processing_metadata = {:model, name}
 
-    with model when is_map(model) <- build_fields(values, fields_meta, static_data),
+    with model_values <- Map.get(values, name, %{}),
+         model when is_map(model) <- build_fields(model_values, fields_meta, static_data),
          :ok <- Validator.apply(model, validations, processing_metadata, static_data),
          {:ok, model} <- Parser.apply(model, parsers, processing_metadata, static_data) do
       build_models(values, rest, static_data, Map.put(acc, name, model))
@@ -54,7 +55,8 @@ defmodule TrivialCsv.Builder do
        ) do
     processing_metadata = {:field, name}
 
-    with columns when is_map(columns) <- build_columns(values, columns_meta, static_data),
+    with field_values <- Map.get(values, name, %{}),
+         columns when is_map(columns) <- build_columns(field_values, columns_meta, static_data),
          field <- Composer.apply(columns, composition, processing_metadata),
          :ok <- Validator.apply(field, validations, processing_metadata, static_data),
          {:ok, field} <- Parser.apply(field, parsers, processing_metadata, static_data) do

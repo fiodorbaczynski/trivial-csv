@@ -12,7 +12,9 @@ defmodule TrivialCsv.Schema do
       @schema nil
 
       @processing :schema
-      @current_name nil
+      @precessing_model nil
+      @processing_field nil
+      @processing_column nil
 
       @schema_validations []
       @model_validations []
@@ -38,7 +40,7 @@ defmodule TrivialCsv.Schema do
   defmacro column(name, do: block) do
     quote do
       @processing :column
-      @current_name unquote(name)
+      @processing_column unquote(name)
       @column_matchers []
 
       @column_validations []
@@ -48,7 +50,9 @@ defmodule TrivialCsv.Schema do
 
       @matchers [
         %{
-          column_name: unquote(name),
+          model_name: @processing_model,
+          field_name: @processing_field,
+          column_name: @processing_column,
           rules: @column_matchers
         }
         | @matchers
@@ -68,6 +72,7 @@ defmodule TrivialCsv.Schema do
   defmacro field(name, do: block) do
     quote do
       @processing :field
+      @processing_field unquote(name)
       @field_validations []
       @field_parsers []
       @columns []
@@ -91,6 +96,7 @@ defmodule TrivialCsv.Schema do
   defmacro model(name, do: block) do
     quote do
       @processing :model
+      @processing_model unquote(name)
       @model_validations []
       @model_parsers []
       @fields []
